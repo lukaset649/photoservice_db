@@ -22,6 +22,7 @@ CREATE TABLE messages (
 	recipient_id INT NOT NULL,
 	mess_content VARCHAR(500),
 	mess_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+
 	FOREIGN KEY (sender_id) REFERENCES users(id_user),
 	FOREIGN KEY (recipient_id) REFERENCES users(id_user)
 )
@@ -38,6 +39,7 @@ CREATE TABLE user_role (
 	id_ur INT PRIMARY KEY IDENTITY,
 	user_id INT,
 	role_id INT,
+
 	FOREIGN KEY (user_id) REFERENCES users(id_user),
 	FOREIGN KEY (role_id) REFERENCES roles(id_role)
 )
@@ -68,6 +70,7 @@ CREATE TABLE reservation (
 	price MONEY,
 	other_info VARCHAR(2000),
 	reservation_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+
 	FOREIGN KEY (client_id) REFERENCES users(id_user),
 	FOREIGN KEY (service_id) REFERENCES service_type(id_service),
 	FOREIGN KEY (status_id) REFERENCES status(id_status)
@@ -78,6 +81,7 @@ CREATE TABLE reservation_employee (
 	id_res_emp INT PRIMARY KEY IDENTITY,
 	reservation_id INT NOT NULL,
 	employee_id INT NOT NULL,
+
 	FOREIGN KEY (reservation_id) REFERENCES reservation(id_res),
 	FOREIGN KEY (employee_id) REFERENCES users(id_user)
 )
@@ -204,12 +208,12 @@ CREATE TABLE reservation_cancellation (
 
 --WPROWADZENIE PRZYK£ADOWYCH DANYCH
 -- Dodanie cztertech u¿ytkowników do tabeli users
-INSERT INTO users (f_name, l_name, phone_number, email, password_hash, is_deleted)
+INSERT INTO users (f_name, l_name, phone_number, email, password_hash)
 VALUES
-('Jan', 'Kowalski', '123456789', 'jan.kowalski@example.com', 'hashed_password_1', 0),
-('Anna', 'Nowak', '987654321', 'anna.nowak@example.com', 'hashed_password_2', 0),
-('Piotr', 'Zielinski', '555666777', 'piotr.zielinski@example.com', 'hashed_password_3', 0),
-('£ukasz', 'Setlak', '111222333', 'lukaset@example.com', 'hashed_password_3', 0);
+('Jan', 'Kowalski', '123456789', 'jan.kowalski@example.com', 'hashed_password_1'),
+('Anna', 'Nowak', '987654321', 'anna.nowak@example.com', 'hashed_password_2'),
+('Piotr', 'Zielinski', '555666777', 'piotr.zielinski@example.com', 'hashed_password_3'),
+('£ukasz', 'Setlak', '111222333', 'lukaset@example.com', 'hashed_password_3');
 
 --Lista ról
 INSERT INTO roles (name, description)
@@ -263,9 +267,67 @@ VALUES
 ('Tamron 28-75mm f/2.8 Di III RXD', 2, 5, 'Zoom o sta³ej jasnoœci, idealny do fotografii krajobrazowej i portretowej.', 'U¿ywany'),
 ('YANGNUO YN560 IV Flash', 4, 3, 'Lampa b³yskowa do aparatów, z mo¿liwoœci¹ bezprzewodowego sterowania.', 'Nowy');
 
+--Lista urz¹dzeñ, które s¹ ze sob¹ kompatybilne (np obiektyw Sigma jest kompatybilny z aparatem CANON R5)
 INSERT INTO equipment_compability (eq_id, compatible_with_id)
 VALUES
 (3,1),
 (4,2),
 (5,1),
 (5,2);
+
+--Lista typów zlecenia
+INSERT INTO service_type (name, description)
+VALUES
+('FOTO', 'Zlecenie do którego wykonania potrzebny jest fotograf'),
+('VIDEO', 'Zlecenie do którego wykonania potrzebny jest kamerzysta'),
+('FOTO-VIDEO', 'Zlecenie do którego wykonania potrzebny jest zarówno fotograf jak i kamerzysta');
+
+--Lista statusów rezerwacji
+INSERT INTO status (name, description)
+VALUES
+('Oczekuj¹ce','Zlecenie oczekuje na przypisanie odpowiednich pracowników'),
+('W trakcie ustaleñ','Przypisano odpowiednich pracowników, trwa ustalanie szczegó³ów z klientem'),
+('Anulowano','Zlecenie zosta³o anulowane przed rozpoczêciem jego realizacji'),
+('Potwierdzone', 'Data i lokalizacja zlecenia zosta³y ustalone z klientem i wprowadzone przez pracowników przypisanych do zlecenia'),
+('W trakcie postprodukcji', 'materia³ zdjêciowy/filmowy zosta³ wykonany i jest w trakcie postprodukcji'),
+('Gotowy', 'Gotowy materia³ jest gotowy do odbioru');
+
+--Lista rezerwacji zleceñ
+INSERT INTO reservation (client_id, service_id, status_id, price, other_info)
+VALUES
+(3, 1, 1, 500.00, 'Sesja zdjêciowa narzeczeñska w plenerze, zale¿y nam na widoku na góry, ale tak ¿eby nie trzeba zbyt daleko iœæ ani siê nigdzie wspinaæ');
+
+--Lista typów zleceñ
+INSERT INTO reservation_type (name, description)
+VALUES
+('wedding', 'Rezerwacja zlecenia œlubnego, przygotowania, ceremoniê i wesele do godziny 01:00.'),
+('photoshoot', 'Rezerwacja sesji plenerowej, obejmuj¹ca ró¿norodne sesje fotograficzne i filmowe.'),
+('baptism', 'Rezerwacja zlecenia z ceremonii chrztu dziecka.'),
+('other', 'Inny typ rezerwacji, który nie pasuje do wczeœniej wymienionych kategorii.');
+
+--Lista detali wprowadzonych do ró¿nych zleceñ z wybranym typem photoshoot
+INSERT INTO details_photoshoot (localisation, transport, num_of_participants)
+VALUES
+('Góra Zborów', 'Dojazd osobno, samochodem prywatnym', 2);
+
+--Lista przypisuj¹ca odpowiedni typ i detale zlecenia do danej rezerwacji
+INSERT INTO reservation_details (reservation_id, type_id, details_id)
+VALUES
+(1, 2, 1);	--rezerwacja o id 1 ma przypisany typ o id 2: photoshoot i detale zlecenia o id 1 (z któej tabeli bêdzie to id zale¿y od type_id)
+
+
+
+-- Przyk³adowa rezerwacja typu wedding i us³uga FOTO-VIDEO
+INSERT INTO reservation (client_id, service_id, status_id, date, price, other_info)
+VALUES
+(3, 3, 1, '2025-06-15', 8000.00, 'Reporta¿ FOTO-VIDEO na weselu');
+
+-- Dodanie szczegó³ów do rezerwacji wedding
+INSERT INTO reservation_details (reservation_id, type_id, details_id)
+VALUES
+(2, 1, 1);
+
+-- Szczegó³y rezerwacji wedding
+INSERT INTO details_wedding (groom_address, groom_prep_time, bride_address, bride_prep_time, ceremony_address, ceremony_time, church_entry_info, documments_signing_info, church_exit_info, compliments_info, wedding_hall_address, musical_band_info, additional_attractions)
+VALUES
+('ul. Kwiatowa 10, Warszawa', '09:00', 'ul. Weso³a 5, Warszawa', '10:30', 'Koœció³ œw. Jana, Warszawa', '14:00', 'Wejœcie osobno. Pan m³ody czeka przy o³tarzu, a Pani m³oda wchodzi z tat¹', 'Podpisanie dokumentów po ceremonii', 'Przy wyjœciu pary m³odej z koœcio³a bêdzie confetti', '¯yczenia odbêd¹ siê na sali po obiedzie', 'Hotel Grand, ul. Piêciomorgowa 7, Warszawa', 'Zespó³ muzyczny "Weselna Harmonia"', 'Pokaz sztucznych ogni po torcie oko³o godziny 22:00');
