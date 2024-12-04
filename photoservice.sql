@@ -206,6 +206,9 @@ CREATE TABLE reservation_cancellation (
 )
 
 
+
+
+
 --WPROWADZENIE PRZYK£ADOWYCH DANYCH
 -- Dodanie cztertech u¿ytkowników do tabeli users
 INSERT INTO users (f_name, l_name, phone_number, email, password_hash)
@@ -331,3 +334,45 @@ VALUES
 INSERT INTO details_wedding (groom_address, groom_prep_time, bride_address, bride_prep_time, ceremony_address, ceremony_time, church_entry_info, documments_signing_info, church_exit_info, compliments_info, wedding_hall_address, musical_band_info, additional_attractions)
 VALUES
 ('ul. Kwiatowa 10, Warszawa', '09:00', 'ul. Weso³a 5, Warszawa', '10:30', 'Koœció³ œw. Jana, Warszawa', '14:00', 'Wejœcie osobno. Pan m³ody czeka przy o³tarzu, a Pani m³oda wchodzi z tat¹', 'Podpisanie dokumentów po ceremonii', 'Przy wyjœciu pary m³odej z koœcio³a bêdzie confetti', '¯yczenia odbêd¹ siê na sali po obiedzie', 'Hotel Grand, ul. Piêciomorgowa 7, Warszawa', 'Zespó³ muzyczny "Weselna Harmonia"', 'Pokaz sztucznych ogni po torcie oko³o godziny 22:00');
+
+-- Dodanie nowych klientów
+INSERT INTO users (f_name, l_name, phone_number, email, password_hash)
+VALUES
+('Marta', 'Wiœniewska', '444555666', 'marta.wisniewska@example.com', 'hashed_password_4'),
+('Krzysztof', 'Nowicki', '777888999', 'krzysztof.nowicki@example.com', 'hashed_password_5'),
+('Ewa', 'Kaczmarek', '333444555', 'ewa.kaczmarek@example.com', 'hashed_password_6');
+
+-- Rezerwacja chrztu dla klienta Marty
+INSERT INTO reservation (client_id, service_id, status_id, date, price, other_info)
+VALUES
+(5, 1, 2, '2024-09-20', 1000.00, 'Ceremonia chrztu, fotografia w koœciele i w domu.');
+
+-- Rezerwacja innego wydarzenia dla Krzysztofa
+INSERT INTO reservation (client_id, service_id, status_id, date, price, other_info)
+VALUES
+(6, 1, 2, '2024-11-10', 1500.00, 'Uroczystoœæ rodzinna, wymagane zdjêcia grupowe i portretowe.');
+
+-- Rezerwacja, która zostanie anulowana dla Ewy
+INSERT INTO reservation (client_id, service_id, status_id, date, price, other_info)
+VALUES
+(7, 2, 3, '2024-10-05', 1200.00, 'Sesja fotograficzna w parku miejskim, odwo³ana przez klienta.');
+
+INSERT INTO details_baptism (church_address, home_address, ceremony_time)
+VALUES
+('Koœció³ œw. Anny, Kraków', 'ul. Lipowa 15, Kraków', '12:00');
+
+INSERT INTO reservation_details (reservation_id, type_id, details_id)
+VALUES
+(3, 3, 1);  -- Rezerwacja chrztu
+
+INSERT INTO details_other (localisation, description)
+VALUES
+('Restauracja "Z³oty Smak", Poznañ', 'Rodzinne przyjêcie urodzinowe, zdjêcia przy stole i podczas przemówieñ.');
+
+INSERT INTO reservation_details (reservation_id, type_id, details_id)
+VALUES
+(4, 4, 1);  -- Rezerwacja innego wydarzenia
+
+INSERT INTO reservation_cancellation (res_id, cancelled_by, cancell_reason)
+VALUES
+(5, 7, 'Odwo³ujemy sesjê ze wzglêdu na zmianê planów.');
