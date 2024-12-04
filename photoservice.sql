@@ -2,6 +2,7 @@
 
 USE photoservice;
 
+--TWORZENIE TABEL
 --Tabela u¿ytkowników
 CREATE TABLE users (
 	id_user INT PRIMARY KEY IDENTITY,
@@ -61,7 +62,7 @@ CREATE TABLE reservation (
 	client_id INT NOT NULL,
 	service_id INT NOT NULL,
 	status_id INT NOT NULL,
-	date DATETIME NOT NULL,
+	date DATETIME,
 	deadline DATE,
 	finished_date DATE,
 	price MONEY,
@@ -103,11 +104,13 @@ CREATE TABLE equipment (
 	eq_manufacturer_id INT NOT NULL,
 	description VARCHAR(255),
 	condition VARCHAR(255),
-	working BIT DEFAULT 1,
+	working BIT DEFAULT 1, --1: working, 0:not working
 
 	FOREIGN KEY (eq_type_id) REFERENCES equipment_type(id_eq_type),
 	FOREIGN KEY (eq_manufacturer_id) REFERENCES equipment_manufacturer(id_eq_man)
 )
+
+
 
 --Tabela przechowuj¹ca informacjê, ze sprzêtem jakich firm jest kompatybilny dany przedmiot (np lampa b³yskowa firmy YANGNUO mo¿e byæ kompatybilna z aparatami Canon, Sony, itp, a obiektyw Tamron z aparatami Nikona)
 CREATE TABLE equipment_compability (
@@ -199,3 +202,67 @@ CREATE TABLE reservation_cancellation (
 	FOREIGN KEY (res_id) REFERENCES reservation(id_res),
     FOREIGN KEY (cancelled_by) REFERENCES users(id_user)
 )
+
+
+--WPROWADZENIE PRZYK£ADOWYCH DANYCH
+-- Dodanie cztertech u¿ytkowników do tabeli users
+INSERT INTO users (f_name, l_name, phone_number, email, password_hash, is_deleted)
+VALUES
+('Jan', 'Kowalski', '123456789', 'jan.kowalski@example.com', 'hashed_password_1', 0),
+('Anna', 'Nowak', '987654321', 'anna.nowak@example.com', 'hashed_password_2', 0),
+('Piotr', 'Zielinski', '555666777', 'piotr.zielinski@example.com', 'hashed_password_3', 0),
+('£ukasz', 'Setlak', '111222333', 'lukaset@example.com', 'hashed_password_3', 0);
+
+--Lista ról
+INSERT INTO roles (name, description)
+VALUES
+('administrator','u¿ytkownik z uprawnieniami do zarz¹dzania u¿ytkownikami i dostêpu do podgl¹du wszystkich danych. Ma mo¿liwoœæ u¿ywania czatu'),
+('fotograf', 'u¿ytkownik bêd¹cy pracownikiem, mog¹cym wykonywaæ zlecenia typu: FOTO. Ma mo¿liwoœæ u¿ywania czatu i sprawdzenia danych dotycz¹cych zleceñ do których zosta³ przypisany przez administratora. Wybiera sprzêt potrzebny do wykonania zlecenia.'),
+('kamerzysta', 'u¿ytkownik bêd¹cy pracownikiem, mog¹cym wykonywaæ zlecenia typu: VIDEO. Ma mo¿liwoœæ u¿ywania czatu i sprawdzenia danych dotycz¹cych zleceñ do których zosta³ przypisany przez administratora. Wybiera sprzêt potrzebny do wykonania zlecenia.'),
+('klient', 'u¿ytkownik maj¹cy mo¿liwoœæ korzystania z czatu i dokonania rezeracji us³ug');
+
+--Przypisanie ról u¿ytkownikom (Jan- administrator, Anna - kamerzysta i fotograf, Piotr - klient, £ukasz - fotograf)
+INSERT INTO user_role (user_id, role_id)
+VALUES
+(1,1),
+(2,3),
+(2,2),
+(3,4),
+(4,2);
+
+--Przyk³adowa konwersacja miêdzy klientem i administratorem oraz klientem i fotografem
+INSERT INTO messages (sender_id, recipient_id, mess_content, mess_date)
+VALUES
+(3, 1, 'Witam, chcia³bym zarezerwowaæ termin na sesjê fotograficzn¹.','2024-12-03 12:46:20'),
+(1, 3, 'Oczywiœcie, proszê utworzyæ now¹ rezerwacjê, a nasz fotograf skontaktuje siê z Panem. Gdy tylko fotograf zostanie przypisany do Pana zlecenia, pojawi siê te¿ opcja "wyœlij wiadomoœæ" przy pomocy której bêdzie móg³ Pan skontaktowaæ siê z nim jako pierwszy.', '2024-12-03 12:49:57'),
+(3, 4, 'Czeœæ £ukasz, mam pytanie odnoœnie rezerwacji sesji zdjêciowej.', '2024-12-04 09:15:00'),
+(4, 3, 'Hej Piotr, chêtnie Ci pomogê. O co dok³adnie chodzi?', '2024-12-04 09:20:00'),
+(3, 4, 'Czy by³by dostêpny termin w przywsz³ym tygodniu?', '2024-12-04 09:45:13');
+
+--Lista typów wyposa¿enia
+INSERT INTO equipment_type (name, description)
+VALUES
+('Body', 'Podstawowy element aparatu, zawieraj¹ca matrycê i mechanizm fotograficzny.'),
+('Lens', 'Obiektyw, element aparatu odpowiedzialny za skupienie obrazu na matrycy.'),
+('Tripod', 'Statyw fotograficzny, u¿ywany do stabilizacji aparatu podczas robienia zdjêæ.'),
+('Flash', 'Lampa b³yskowa, s³u¿¹ca do doœwietlania sceny w przypadku s³abego oœwietlenia.');
+
+--Lista producentów wyposa¿enia
+INSERT INTO equipment_manufacturer (name, description)
+VALUES
+('Canon', 'Lustrzanki, bezlusterkowce i obiektywy u¿ywane przez nas do fotografii'),
+('Sony', 'Bezlusterkowce i obiektywy u¿ywane przez nas do nagrywania video'),
+('YANGNUO', 'Lampy b³yskowe i obiektywy'),
+('Sigma', 'Obiektywy'),
+('Tamron', 'Obiektywy');
+
+--Lista sprzêtu dostêpnego w firmie
+INSERT INTO equipment (name, eq_type_id, eq_manufacturer_id, description, condition)
+VALUES
+('Canon EOS R5', 1, 1, 'Bezlusterkowy aparat fotograficzny o wysokiej rozdzielczoœci, idealny do profesjonalnej fotografii.', 'Nowy'),
+('Sony Alpha 7 III', 1, 2, 'Profesjonalny bezlusterkowiec z matryc¹ pe³noklatkow¹, doskona³y do nagrywania wideo.', 'U¿ywany'),
+('Sigma 35mm f/1.4 DG HSM', 2, 4, 'Obiektyw sta³oogniskowy o du¿ej jasnoœci, idealny do portretów i fotografii niskiego oœwietlenia.', 'Nowy'),
+('Tamron 28-75mm f/2.8 Di III RXD', 2, 5, 'Zoom o sta³ej jasnoœci, idealny do fotografii krajobrazowej i portretowej.', 'U¿ywany'),
+('YANGNUO YN560 IV Flash', 4, 3, 'Lampa b³yskowa do aparatów, z mo¿liwoœci¹ bezprzewodowego sterowania.', 'Nowy');
+
+
