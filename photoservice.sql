@@ -1,6 +1,6 @@
 --CREATE DATABASE photoservice;
 
-USE photoservice;
+--USE photoservice;
 
 --TWORZENIE TABEL
 --Tabela u¿ytkowników
@@ -110,16 +110,14 @@ CREATE TABLE equipment (
 	FOREIGN KEY (eq_manufacturer_id) REFERENCES equipment_manufacturer(id_eq_man)
 )
 
-
-
 --Tabela przechowuj¹ca informacjê, ze sprzêtem jakich firm jest kompatybilny dany przedmiot (np lampa b³yskowa firmy YANGNUO mo¿e byæ kompatybilna z aparatami Canon, Sony, itp, a obiektyw Tamron z aparatami Nikona)
 CREATE TABLE equipment_compability (
 	id_compability INT PRIMARY KEY IDENTITY,
 	eq_id INT NOT NULL,
-	man_id INT NOT NULL,
+	compatible_with_id INT NOT NULL,
 
 	FOREIGN KEY (eq_id) REFERENCES equipment(id_eq),
-	FOREIGN KEY (man_id) REFERENCES equipment_manufacturer(id_eq_man)
+	FOREIGN KEY (compatible_with_id) REFERENCES equipment(id_eq)
 )
 
 --Tabela przypisuj¹ca listê sprzêtu do rezerwacji. Jedna rezerwacja mo¿e mieæ tylko jedn¹ listê rezerwacji
@@ -265,4 +263,9 @@ VALUES
 ('Tamron 28-75mm f/2.8 Di III RXD', 2, 5, 'Zoom o sta³ej jasnoœci, idealny do fotografii krajobrazowej i portretowej.', 'U¿ywany'),
 ('YANGNUO YN560 IV Flash', 4, 3, 'Lampa b³yskowa do aparatów, z mo¿liwoœci¹ bezprzewodowego sterowania.', 'Nowy');
 
-
+INSERT INTO equipment_compability (eq_id, compatible_with_id)
+VALUES
+(3,1),
+(4,2),
+(5,1),
+(5,2);
