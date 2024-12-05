@@ -63,7 +63,7 @@ CREATE TABLE reservation (
 	id_res INT PRIMARY KEY IDENTITY,
 	client_id INT NOT NULL,
 	service_id INT NOT NULL,
-	status_id INT NOT NULL,
+	status_id INT NOT NULL DEFAULT 1, --domyœlnie status ustawiony na oczekuj¹ce
 	date DATETIME,
 	deadline DATE,
 	finished_date DATE,
@@ -216,7 +216,10 @@ VALUES
 ('Jan', 'Kowalski', '123456789', 'jan.kowalski@example.com', 'hashed_password_1'),
 ('Anna', 'Nowak', '987654321', 'anna.nowak@example.com', 'hashed_password_2'),
 ('Piotr', 'Zielinski', '555666777', 'piotr.zielinski@example.com', 'hashed_password_3'),
-('£ukasz', 'Setlak', '111222333', 'lukaset@example.com', 'hashed_password_3');
+('£ukasz', 'Setlak', '111222333', 'lukaset@example.com', 'hashed_password_3'),
+('Marta', 'Wiœniewska', '444555666', 'marta.wisniewska@example.com', 'hashed_password_4'),
+('Krzysztof', 'Nowicki', '777888999', 'krzysztof.nowicki@example.com', 'hashed_password_5'),
+('Ewa', 'Kaczmarek', '333444555', 'ewa.kaczmarek@example.com', 'hashed_password_6');
 
 --Lista ról
 INSERT INTO roles (name, description)
@@ -233,7 +236,10 @@ VALUES
 (2,3),
 (2,2),
 (3,4),
-(4,2);
+(4,2),
+(5,4),
+(6,4),
+(7,4);
 
 --Przyk³adowa konwersacja miêdzy klientem i administratorem oraz klientem i fotografem
 INSERT INTO messages (sender_id, recipient_id, mess_content, mess_date)
@@ -318,8 +324,6 @@ INSERT INTO reservation_details (reservation_id, type_id, details_id)
 VALUES
 (1, 2, 1);	--rezerwacja o id 1 ma przypisany typ o id 2: photoshoot i detale zlecenia o id 1 (z któej tabeli bêdzie to id zale¿y od type_id)
 
-
-
 -- Przyk³adowa rezerwacja typu wedding i us³uga FOTO-VIDEO
 INSERT INTO reservation (client_id, service_id, status_id, date, price, other_info)
 VALUES
@@ -334,13 +338,6 @@ VALUES
 INSERT INTO details_wedding (groom_address, groom_prep_time, bride_address, bride_prep_time, ceremony_address, ceremony_time, church_entry_info, documments_signing_info, church_exit_info, compliments_info, wedding_hall_address, musical_band_info, additional_attractions)
 VALUES
 ('ul. Kwiatowa 10, Warszawa', '09:00', 'ul. Weso³a 5, Warszawa', '10:30', 'Koœció³ œw. Jana, Warszawa', '14:00', 'Wejœcie osobno. Pan m³ody czeka przy o³tarzu, a Pani m³oda wchodzi z tat¹', 'Podpisanie dokumentów po ceremonii', 'Przy wyjœciu pary m³odej z koœcio³a bêdzie confetti', '¯yczenia odbêd¹ siê na sali po obiedzie', 'Hotel Grand, ul. Piêciomorgowa 7, Warszawa', 'Zespó³ muzyczny "Weselna Harmonia"', 'Pokaz sztucznych ogni po torcie oko³o godziny 22:00');
-
--- Dodanie nowych klientów
-INSERT INTO users (f_name, l_name, phone_number, email, password_hash)
-VALUES
-('Marta', 'Wiœniewska', '444555666', 'marta.wisniewska@example.com', 'hashed_password_4'),
-('Krzysztof', 'Nowicki', '777888999', 'krzysztof.nowicki@example.com', 'hashed_password_5'),
-('Ewa', 'Kaczmarek', '333444555', 'ewa.kaczmarek@example.com', 'hashed_password_6');
 
 -- Rezerwacja chrztu dla klienta Marty
 INSERT INTO reservation (client_id, service_id, status_id, date, price, other_info)
