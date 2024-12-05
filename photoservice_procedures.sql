@@ -320,7 +320,7 @@ JOIN user_role ur ON u.id_user = ur.user_id
 JOIN roles r ON ur.role_id = r.id_role
 WHERE u.is_deleted = 0;	--sprawdza czy konto u¿ytkownika jest aktywne (nie zosta³o usuniête)
 
-SELECT * FROM ActiveUsersWithRoles
+--SELECT * FROM ActiveUsersWithRoles
 
 --widok wyœwietlaj¹cy informacje o rezerwacji
 CREATE VIEW ReservationView AS
@@ -330,4 +330,33 @@ JOIN users u ON r.client_id = u.id_user
 JOIN service_type st ON r.service_id = st.id_service
 JOIN status s ON r.status_id = s.id_status;
 
-SELECT * FROM ReservationView
+--SELECT * FROM ReservationView
+
+--====================TRIGGER====================
+--Trigger zapobiegaj¹cy usuniêciu konta przez u¿ytkownika z aktywnym zleceniem
+CREATE TRIGGER PreventUserDeletion
+ON users
+INSTEAD OF DELETE
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1 
+        FROM reservation 
+        WHERE client_id IN (SELECT id_user FROM deleted) AND status_id NOT IN (3, 6)  -- 3:Anulowano, 6:Gotowy
+    )
+    BEGIN
+        PRINT 'Nie mo¿na usun¹æ konta z aktywn¹ rezerwacj¹.';
+    END
+    ELSE
+    BEGIN
+        UPDATE users 
+        SET is_deleted = 1
+        WHERE id_user IN (SELECT id_user FROM deleted);
+        
+        PRINT 'U¿ytkownik oznaczony jako usuniêty.';
+    END;
+END;
+
+--Przyk³ad u¿ycia:
+--DELETE FROM users WHERE id_user= 2;
+--SELECT * FROM USERS
