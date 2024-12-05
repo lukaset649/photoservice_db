@@ -307,5 +307,27 @@ EXEC CancelReservation
 	@cancelled_by = 1, 
 	@cancell_reason = 'Admin action';
 
-SELECT * FROM reservation
-SELECT * FROM reservation_cancellation
+--SELECT * FROM reservation
+--SELECT * FROM reservation_cancellation
+
+
+--====================WIDOKI====================
+--widok ³¹cz¹cy u¿ytkowników z ich rolami
+CREATE VIEW ActiveUsersWithRoles AS
+SELECT u.id_user, u.f_name, u.l_name, u.email, r.name AS role_name
+FROM users u
+JOIN user_role ur ON u.id_user = ur.user_id
+JOIN roles r ON ur.role_id = r.id_role
+WHERE u.is_deleted = 0;	--sprawdza czy konto u¿ytkownika jest aktywne (nie zosta³o usuniête)
+
+SELECT * FROM ActiveUsersWithRoles
+
+--widok wyœwietlaj¹cy informacje o rezerwacji
+CREATE VIEW ReservationView AS
+SELECT r.id_res, u.f_name + ' ' + u.l_name AS client_name, st.name AS service_type, s.name AS status, r.price, r.other_info, r.reservation_date
+FROM reservation r
+JOIN users u ON r.client_id = u.id_user
+JOIN service_type st ON r.service_id = st.id_service
+JOIN status s ON r.status_id = s.id_status;
+
+SELECT * FROM ReservationView
