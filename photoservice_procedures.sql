@@ -1,6 +1,6 @@
 --PROCEDURY
---Procedura pozwalaj¹ca na dodanie rezerwacji dla u¿ytkowników z odpowiednimi rolami
 
+--====================Procedura pozwalaj¹ca na dodanie rezerwacji dla u¿ytkowników z odpowiednimi rolami====================
 CREATE PROCEDURE AddReservation
     @client_id INT,
     @service_id INT,
@@ -158,7 +158,7 @@ BEGIN
 END;
 
 
---PRZYK£AD WYWO£ANIA
+--PRZYK£AD WYWO£ANIA 
 --aplikacja sprawdza jaki typ zosta³ wybrany i na tej podstawie wywo³uje odpowiedni¹ procedurê (np: case 4: EXEC AddDetailsOther)
 DECLARE @reservation_details_id INT;
 
@@ -176,3 +176,77 @@ EXEC AddDetailsOther
     @id_reservation_details = @reservation_details_id,
     @localisation = 'ul. Nowa 5, Wroc³aw',  -- Lokalizacja
     @description = 'Event w plenerze z widokiem na jezioro';  -- Opis
+
+
+
+--====================Procedura do przypisania pracownika (u¿ytkownik z odpowiedni¹ rol¹) do rezerwacji.====================
+
+CREATE PROCEDURE AssignEmployeeToReservation
+    @reservation_id INT,
+    @employee_id INT
+AS
+BEGIN
+    -- Sprawdzanie, czy pracownik istnieje
+    IF EXISTS (SELECT 1 FROM users WHERE id_user = @employee_id)
+    BEGIN
+        -- zapisanie typu zlecenia (service_id) przypisanego do rezerwacji
+        DECLARE @service_id INT;
+
+        SELECT @service_id = service_id
+        FROM reservation
+        WHERE id_res = @reservation_id;
+
+        -- zapisanie roli wybranego u¿ytkownika
+        DECLARE @role_id INT;
+
+        SELECT @role_id = r.id_role
+        FROM user_role ur
+        JOIN roles r ON ur.role_id = r.id_role
+        WHERE ur.user_id = @employee_id;
+
+        -- Sprawdzanie, czy pracownik ma odpowiedni¹ rolê dla danego zlecenia
+        IF (@service_id = 1 AND @role_id = 2)  -- id_service = 1 -> rola 2
+        BEGIN
+            -- Przypisanie pracownika do rezerwacji
+            INSERT INTO reservation_employee (reservation_id, employee_id)
+            VALUES (@reservation_id, @employee_id);
+
+            PRINT 'Pracownik zosta³ przypisany do zlecenia';
+        END
+        ELSE IF (@service_id = 2 AND @role_id = 3)  -- id_service = 2 -> rola 3
+        BEGIN
+            -- Przypisanie pracownika do rezerwacji
+            INSERT INTO reservation_employee (reservation_id, employee_id)
+            VALUES (@reservation_id, @employee_id);
+            PRINT 'Pracownik zosta³ przypisany do zlecenia';
+        END
+        ELSE IF (@service_id = 3 AND (@role_id = 2 OR @role_id = 3))  -- id_service = 3 -> rola 2 lub 3
+        BEGIN
+            -- Przypisanie pracownika do rezerwacji
+            INSERT INTO reservation_employee (reservation_id, employee_id)
+            VALUES (@reservation_id, @employee_id);
+            PRINT 'Pracownik zosta³ przypisany do zlecenia';
+        END
+        ELSE
+        BEGIN
+            PRINT 'Wybrany u¿ytkownik nie ma wymaganych uprawnieñ';
+        END
+    END
+    ELSE
+    BEGIN
+        PRINT 'Nie znaleziono wybranego pracownika';
+    END;
+END;
+
+--Przyk³ad wywo³ania
+
+--SELECT * FROM reservation
+--SELECT * FROM user_role
+--SELECT * FROM service_type
+--SELECT * FROM roles
+
+EXEC AssignEmployeeToReservation 
+	@reservation_id = 1,
+	@employee_id = 4;
+
+SELECT * FROM reservation_employee
