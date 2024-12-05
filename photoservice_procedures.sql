@@ -1,4 +1,4 @@
---PROCEDURY
+--====================PROCEDURY====================
 
 --====================Procedura pozwalaj¹ca na dodanie rezerwacji dla u¿ytkowników z odpowiednimi rolami====================
 CREATE PROCEDURE AddReservation
@@ -250,3 +250,62 @@ EXEC AssignEmployeeToReservation
 	@employee_id = 4;
 
 SELECT * FROM reservation_employee
+
+
+
+--====================Procedura do anulowania rezerwacji.====================
+
+CREATE PROCEDURE CancelReservation
+    @res_id INT,
+    @cancelled_by INT,
+    @cancell_reason VARCHAR(500)
+AS
+BEGIN
+    DECLARE @creator_id INT;
+    DECLARE @is_assigned_employee BIT;
+	DECLARE @is_admin BIT;
+
+    --Zapisanie u¿ytkownika, który stworzy³ rezerwacjê
+    SELECT @creator_id = client_id
+    FROM reservation
+    WHERE id_res = @res_id;
+
+    -- Sprawdzenie, czy u¿ytkownik który chce anulowaæ zlecenie jest przypisanym do niej pracownikiem
+    SELECT @is_assigned_employee = 1
+    FROM reservation_employee
+    WHERE reservation_id = @res_id AND employee_id = @cancelled_by;
+
+	-- Sprawdzenie, czy u¿ytkownik ma rolê administratora
+    SELECT @is_admin = 1
+    FROM user_role ur
+    JOIN roles r ON ur.role_id = r.id_role
+    WHERE ur.user_id = @cancelled_by AND r.id_role = 1;
+
+	-- Aktualizacja statusu rezerwacji na anulowan¹
+    IF (@cancelled_by = @creator_id OR @is_assigned_employee = 1 OR @is_admin = 1)
+    BEGIN
+        UPDATE reservation
+        SET status_id = 3
+        WHERE id_res = @res_id;
+
+        -- Zapisanie informacji o anulowanej rezerwacji do tabeli reservation_cancellation
+        INSERT INTO reservation_cancellation (res_id, cancelled_by, cancell_reason)
+        VALUES (@res_id, @cancelled_by, @cancell_reason);
+
+        PRINT 'Rezerwacja anulowana pomyœlnie';
+    END
+    ELSE
+    BEGIN
+        PRINT 'Nie masz uprawnieñ do anulowania tej rezerwacji';
+    END;
+END;
+
+
+--przyk³ad u¿ycia: admin odwo³uje rezerwacjê
+EXEC CancelReservation
+	@res_id = 1, 
+	@cancelled_by = 1, 
+	@cancell_reason = 'Admin action';
+
+SELECT * FROM reservation
+SELECT * FROM reservation_cancellation
