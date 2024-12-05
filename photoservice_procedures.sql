@@ -61,3 +61,117 @@ EXEC AddReservation
 --select * from reservation_type
 --SELECT * FROM user_role
 --SELECT * FROM users
+
+--Procedura dodania rekordu do tabeli details_wedding i uzupe³nienia details_id w tabeli reservation_details
+CREATE PROCEDURE AddDetailsWedding
+	@id_reservation_details INT,
+    @groom_address VARCHAR(255),
+    @groom_prep_time TIME,
+    @bride_address VARCHAR(255),
+    @bride_prep_time TIME,
+    @ceremony_address VARCHAR(255),
+    @ceremony_time TIME,
+    @church_entry_info VARCHAR(255),
+    @documments_signing_info VARCHAR(255),
+    @church_exit_info VARCHAR(255),
+    @compliments_info VARCHAR(255),
+    @wedding_hall_address VARCHAR(255),
+    @musical_band_info VARCHAR(255),
+    @additional_attractions VARCHAR(500)
+AS
+BEGIN
+    INSERT INTO details_wedding
+        (groom_address, groom_prep_time, bride_address, bride_prep_time, 
+         ceremony_address, ceremony_time, church_entry_info, documments_signing_info, 
+         church_exit_info, compliments_info, wedding_hall_address, musical_band_info, 
+         additional_attractions)
+    VALUES
+        (@groom_address, @groom_prep_time, @bride_address, @bride_prep_time, 
+         @ceremony_address, @ceremony_time, @church_entry_info, @documments_signing_info, 
+         @church_exit_info, @compliments_info, @wedding_hall_address, @musical_band_info, 
+         @additional_attractions);
+
+	--Zapisujê id dodanego rekordu
+	DECLARE @details_wedding_id INT;
+    SET @details_wedding_id = SCOPE_IDENTITY();
+    
+	--Aktualizacja tabeli reservation_details z nowym ID z details_wedding
+	UPDATE reservation_details
+    SET details_id = @details_wedding_id
+    WHERE id_res_det = @id_reservation_details;
+END;
+
+
+--Procedura dodania rekordu do tabeli details_photoshoot i uzupe³nienia details_id w tabeli reservation_details
+CREATE PROCEDURE AddDetailsPhotoshoot
+    @id_reservation_details INT,
+    @localisation VARCHAR(255),
+    @transport VARCHAR(255),
+    @num_of_participants INT
+AS
+BEGIN
+    -- Dodanie rekordu do tabeli details_photoshoot
+    INSERT INTO details_photoshoot
+        (localisation, transport, num_of_participants)
+    VALUES
+        (@localisation, @transport, @num_of_participants);
+
+    -- Zapisanie ID dodanego rekordu
+    DECLARE @details_photoshoot_id INT;
+    SET @details_photoshoot_id = SCOPE_IDENTITY();
+    
+    -- Aktualizacja tabeli reservation_details z nowym ID z details_photoshoot
+    UPDATE reservation_details
+    SET details_id = @details_photoshoot_id
+    WHERE id_res_det = @id_reservation_details;
+END;
+
+
+
+--Procedura dodania rekordu do tabeli details_baptism i uzupe³nienia details_id w tabeli reservation_details
+CREATE PROCEDURE AddDetailsBaptism
+    @id_reservation_details INT,
+    @home_address VARCHAR(255),
+    @church_address VARCHAR(255),
+    @ceremony_time TIME
+AS
+BEGIN
+    -- Dodanie rekordu do tabeli details_baptism
+    INSERT INTO details_baptism
+        (home_address, church_address, ceremony_time)
+    VALUES
+        (@home_address, @church_address, @ceremony_time);
+
+    -- Zapisanie ID dodanego rekordu
+    DECLARE @details_baptism_id INT;
+    SET @details_baptism_id = SCOPE_IDENTITY();
+    
+    -- Aktualizacja tabeli reservation_details z nowym ID z details_baptism
+    UPDATE reservation_details
+    SET details_id = @details_baptism_id
+    WHERE id_res_det = @id_reservation_details;
+END;
+
+
+--Procedura dodania rekordu do tabeli details_other i uzupe³nienia details_id w tabeli reservation_details
+CREATE PROCEDURE AddDetailsOther
+    @id_reservation_details INT,
+    @localisation VARCHAR(255),
+    @description VARCHAR(500)
+AS
+BEGIN
+    -- Dodanie rekordu do tabeli details_other
+    INSERT INTO details_other
+        (localisation, description)
+    VALUES
+        (@localisation, @description);
+
+    -- Zapisanie ID dodanego rekordu
+    DECLARE @details_other_id INT;
+    SET @details_other_id = SCOPE_IDENTITY();
+    
+    -- Aktualizacja tabeli reservation_details z nowym ID z details_other
+    UPDATE reservation_details
+    SET details_id = @details_other_id
+    WHERE id_res_det = @id_reservation_details;
+END;
