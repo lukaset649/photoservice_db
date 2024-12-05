@@ -194,6 +194,7 @@ CREATE TABLE reservation_details (
 	FOREIGN KEY (type_id) REFERENCES reservation_type(id_res_type)
 )
 
+--Tabela zapisuj¹ca anulowanie rezerwacji
 CREATE TABLE reservation_cancellation (
 	id_cancell INT PRIMARY KEY IDENTITY,
 	res_id INT NOT NULL,
@@ -205,6 +206,14 @@ CREATE TABLE reservation_cancellation (
     FOREIGN KEY (cancelled_by) REFERENCES users(id_user)
 )
 
+--Tabela zapisuj¹ca zmianê stanu sprzêtu
+CREATE TABLE equipment_condition_log (
+    log_id INT IDENTITY PRIMARY KEY,
+    equipment_id INT,                      
+    old_condition VARCHAR(255),            
+    new_condition VARCHAR(255),            
+    change_date DATETIME                 
+);
 
 
 
