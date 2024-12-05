@@ -332,6 +332,38 @@ JOIN status s ON r.status_id = s.id_status;
 
 --SELECT * FROM ReservationView
 
+--widok wyœwietlaj¹cy wszystkie zlecenia do których zostali przypisani pracownicy
+CREATE VIEW EmployeeReservationsView AS
+SELECT 
+    r.id_res AS reservation_id,
+    u.f_name + ' ' + u.l_name AS client_name,
+    st.name AS service_type,
+    s.name AS status,
+    r.price,
+    r.other_info,
+    r.reservation_date,
+    e.f_name + ' ' + e.l_name AS employee_name
+FROM 
+    reservation r
+JOIN 
+    reservation_employee re ON r.id_res = re.reservation_id
+JOIN 
+    users u ON r.client_id = u.id_user	
+JOIN 
+    service_type st ON r.service_id = st.id_service	--typ zlecenia
+JOIN 
+    status s ON r.status_id = s.id_status	--status rezerwacji
+JOIN 
+    users e ON re.employee_id = e.id_user  --dane pracownika
+JOIN 
+    user_role ur ON e.id_user = ur.user_id  --role pracownika
+WHERE 
+    ur.role_id IN (2, 3);  -- sprawdza czy u¿ytkownik ma rolê fotografa lub kamerzysty
+
+SELECT * FROM EmployeeReservationsView
+
+
+
 --====================TRIGGER====================
 --Trigger zapobiegaj¹cy usuniêciu konta przez u¿ytkownika z aktywnym zleceniem
 CREATE TRIGGER PreventUserDeletion
@@ -377,3 +409,5 @@ BEGIN
         PRINT 'Zmieni³ siê stan sprzêtu.';
     END;
 END
+
+SELECT * FROM roles
