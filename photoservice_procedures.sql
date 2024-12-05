@@ -360,3 +360,20 @@ END;
 --Przyk³ad u¿ycia:
 --DELETE FROM users WHERE id_user= 2;
 --SELECT * FROM USERS
+
+--Trigger zbieraj¹cy logi zmiany pola dotycz¹cego stanu sprzêtu (condition w tabel equipment)
+CREATE TRIGGER LogEquipmentConditionChange
+ON equipment
+AFTER UPDATE
+AS
+BEGIN
+    IF UPDATE(condition)
+    BEGIN
+        INSERT INTO equipment_condition_log (equipment_id, old_condition, new_condition, change_date)
+        SELECT d.id_eq, d.condition, i.condition, GETDATE()
+        FROM deleted d
+        JOIN inserted i ON d.id_eq = i.id_eq;
+        
+        PRINT 'Zmieni³ siê stan sprzêtu.';
+    END;
+END
