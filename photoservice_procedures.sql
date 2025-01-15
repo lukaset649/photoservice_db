@@ -332,11 +332,21 @@ JOIN status s ON r.status_id = s.id_status;
 
 --widok wyœwietlaj¹cy informacje o rezerwacji przeznaczone dla klienta
 CREATE VIEW ClientReservationView AS
-SELECT r.id_res, st.name AS service_type, r.date, s.name AS status, r.price, r.other_info, r.reservation_date AS reservation_timestamp
+SELECT 
+    r.id_res, 
+    st.name AS service_type, 
+	rt.name AS reservation_type,
+    r.date, 
+    s.name AS status, 
+    r.price, 
+    r.other_info, 
+    r.reservation_date AS reservation_timestamp
 FROM reservation r
 JOIN users u ON r.client_id = u.id_user
 JOIN service_type st ON r.service_id = st.id_service
-JOIN status s ON r.status_id = s.id_status;
+JOIN status s ON r.status_id = s.id_status
+JOIN reservation_details rd ON r.id_res = rd.reservation_id
+JOIN reservation_type rt ON rd.type_id = rt.id_res_type;
 
 --SELECT * FROM ReservationView
 
@@ -418,5 +428,3 @@ BEGIN
         PRINT 'Zmieni³ siê stan sprzêtu.';
     END;
 END
-
-SELECT * FROM roles
