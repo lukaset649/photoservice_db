@@ -324,7 +324,15 @@ WHERE u.is_deleted = 0;	--sprawdza czy konto u¿ytkownika jest aktywne (nie zosta
 
 --widok wyœwietlaj¹cy informacje o rezerwacji
 CREATE VIEW ReservationView AS
-SELECT r.id_res, u.f_name + ' ' + u.l_name AS client_name, st.name AS service_type, s.name AS status, r.price, r.other_info, r.reservation_date
+SELECT r.id_res, u.f_name + ' ' + u.l_name AS client_name, st.name AS service_type, r.date, s.name AS status, r.price, r.other_info, r.reservation_date AS reservation_timestamp
+FROM reservation r
+JOIN users u ON r.client_id = u.id_user
+JOIN service_type st ON r.service_id = st.id_service
+JOIN status s ON r.status_id = s.id_status;
+
+--widok wyœwietlaj¹cy informacje o rezerwacji przeznaczone dla klienta
+CREATE VIEW ClientReservationView AS
+SELECT r.id_res, st.name AS service_type, r.date, s.name AS status, r.price, r.other_info, r.reservation_date AS reservation_timestamp
 FROM reservation r
 JOIN users u ON r.client_id = u.id_user
 JOIN service_type st ON r.service_id = st.id_service
@@ -338,10 +346,11 @@ SELECT
     r.id_res AS reservation_id,
     u.f_name + ' ' + u.l_name AS client_name,
     st.name AS service_type,
+	r.date,
     s.name AS status,
     r.price,
     r.other_info,
-    r.reservation_date,
+    r.reservation_date AS reservation_timestamp,
     e.f_name + ' ' + e.l_name AS employee_name
 FROM 
     reservation r
